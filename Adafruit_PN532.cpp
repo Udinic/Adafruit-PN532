@@ -68,8 +68,8 @@ byte pn532response_firmwarevers[] = {0x00, 0x00, 0xFF, 0x06, 0xFA, 0xD5};
 // Uncomment these lines to enable debug output for PN532(SPI) and/or MIFARE
 // related code
 
-// #define PN532DEBUG
-// #define MIFAREDEBUG
+#define PN532DEBUG
+#define MIFAREDEBUG
 
 // If using Native Port on Arduino Zero or Due define as SerialUSB
 #define PN532DEBUGPRINT Serial
@@ -293,6 +293,10 @@ bool Adafruit_PN532::sendCommandCheckAck(uint8_t *cmd, uint8_t cmdlen,
                                          uint16_t timeout) {
   // uint16_t timer = 0;
 
+  #ifdef PN532DEBUG
+    PN532DEBUGPRINT.println(F("Start sendCommandCheckAck"));      
+  #endif
+
   // write the command
   writecommand(cmd, cmdlen);
 
@@ -342,6 +346,10 @@ bool Adafruit_PN532::sendCommandCheckAck(uint8_t *cmd, uint8_t cmdlen,
 bool Adafruit_PN532::sendCommandCheckAckNonBlocking(uint8_t *cmd, uint8_t cmdlen, uint16_t timeout) {
   uint16_t timer = 0;
 
+  #ifdef PN532DEBUG
+    PN532DEBUGPRINT.println(F("Start sendCommandCheckAckNonBlocking"));      
+  #endif
+
   // write the command
   writecommand(cmd, cmdlen);
 
@@ -351,7 +359,7 @@ bool Adafruit_PN532::sendCommandCheckAckNonBlocking(uint8_t *cmd, uint8_t cmdlen
   }
 
   #ifdef PN532DEBUG
-    if (!_usingSPI) {
+    if (spi_dev == NULL) {
       PN532DEBUGPRINT.println(F("IRQ received"));
     }
   #endif
@@ -917,11 +925,11 @@ uint8_t Adafruit_PN532::mifareclassic_AuthenticateBlock(uint8_t *uid,
 
 #ifdef MIFAREDEBUG
   PN532DEBUGPRINT.print(F("Trying to authenticate card "));
-  Adafruit_PN532::PrintHex(_uid, _uidLen);
+  Adafruit_PN532::PrintHex((const byte *)_uid, _uidLen);
   PN532DEBUGPRINT.print(F("Using authentication KEY "));
   PN532DEBUGPRINT.print(keyNumber ? 'B' : 'A');
   PN532DEBUGPRINT.print(F(": "));
-  Adafruit_PN532::PrintHex(_key, 6);
+  Adafruit_PN532::PrintHex((const byte *)_key, 6);
 #endif
 
   // Prepare the authentication command //
